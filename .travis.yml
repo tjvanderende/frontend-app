@@ -4,8 +4,9 @@ node_js:
 cache:
   directories:
     - ~/.npm
+    - ~/.cache
     - node_modules
 install:
-  - npm install
+  - npm ci
 script:
   - npm run cypress:ci

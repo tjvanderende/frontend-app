@@ -1,4 +1,4 @@
-FROM node:6
+FROM node:8
 # Need Xvfb
 RUN apt-get update --yes
 RUN apt-get install --yes libgtk2.0-0 libnotify4 libgconf2-4 libnss3

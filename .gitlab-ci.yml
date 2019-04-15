@@ -1,4 +1,4 @@
-image: bahmutov/cypress-image
+image: cypress/base:8
 # caching node_modules folder
 # https://about.gitlab.com/2016/03/01/gitlab-runner-with-docker/
 cache:
@@ -17,7 +17,7 @@ build-specs:
     paths:
       - cypress/integration
 
-      
+
 # Hidden job that defines an anchor named 'e2e_test_definition'
 # This job will be automatically assigned "test" phase
 .job_template: &e2e_test_definition

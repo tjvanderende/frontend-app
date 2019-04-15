@@ -2,7 +2,7 @@
 
 describe('Firestarter', () => {
     beforeEach(() => {
-        cy.visit('http://localhost:4200');
+        cy.visit('http://localhost:8000');
     })
 
     it('has a heading', () => {

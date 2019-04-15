@@ -49,4 +49,4 @@ install:
 # actual job definitions
 # all steps are the same, they come from the template above
 electrons-1:
-  <<: *test
+  <<: *job

@@ -1,32 +1,52 @@
-image: cypress/base:8
-# caching node_modules folder
-# https://about.gitlab.com/2016/03/01/gitlab-runner-with-docker/
-cache:
-  paths:
-  - node_modules/
+# first, install Cypress, then run all tests (in parallel)
 stages:
   - build
   - test
-build-specs:
+
+# to cache both npm modules and Cypress binary we use environment variables
+# to point at the folders we can list as paths in "cache" job settings
+variables:
+  npm_config_cache: "$CI_PROJECT_DIR/.npm"
+  CYPRESS_CACHE_FOLDER: "$CI_PROJECT_DIR/cache/Cypress"
+
+# cache using branch name
+# https://gitlab.com/help/ci/caching/index.md
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - .npm
+    - cache/Cypress
+    - node_modules
+
+# this job installs NPM dependencies and Cypress
+install:
+  image: cypress/base:10
   stage: build
+
   script:
-    - npm install
-    - npm test
-    - npm run build
+    - npm ci
+    - $(npm bin)/print-env CI
+    - npm run cy:verify
+
+# all jobs that actually run tests can use the same definition
+.job_template: &job
+  image: cypress/base:10
+  stage: test
+  script:
+    # print CI environment variables for reference
+    - $(npm bin)/print-env CI
+    # start the server in the background
+    - npm run start:ci &
+    # run Cypress test in load balancing mode
+    - npm run e2e:record -- --parallel --group electrons
   artifacts:
+    when: always
     paths:
-      - cypress/integration
+      - cypress/videos/**/*.mp4
+      - cypress/screenshots/**/*.png
+    expire_in: 1 day
 
-
-# Hidden job that defines an anchor named 'e2e_test_definition'
-# This job will be automatically assigned "test" phase
-.job_template: &e2e_test_definition
-  script:
-    - cypress ci --spec "cypress/integration/$CI_BUILD_NAME.js"
-# as many job definitions as spec files
-# runs cypress ci --spec cypress/integration/one_spec.js
-one_spec:
-  <<: *e2e_test_definition
-# runs cypress ci --spec cypress/integration/two_spec.js
-two_spec:
-  <<: *e2e_test_definition
+# actual job definitions
+# all steps are the same, they come from the template above
+electrons-1:
+  <<: *test.spec

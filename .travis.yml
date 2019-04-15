@@ -36,6 +36,7 @@ before_script:
   - npm start -- --silent &
 
 script:
+  - ng serve & wait-on http://localhost:4200
   ## now run cypress headlessly
   ## and record all of the tests.
   ## Cypress will search for a
